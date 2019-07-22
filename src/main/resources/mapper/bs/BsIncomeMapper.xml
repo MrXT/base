@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.module.bs.dao.BsIncomeMapper">
+    <resultMap id="BaseResultMap" type="com.project.entity.BsIncome">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="income_id" property="incomeId" jdbcType="VARCHAR"/>
+        <result column="income_name" property="incomeName" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="income_user_id" property="incomeUserId" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="coin" property="coin" jdbcType="INTEGER"/>
+        <result column="ctime" property="ctime" jdbcType="TIMESTAMP"/>
+        <result column="utime" property="utime" jdbcType="TIMESTAMP"/>
+        <result column="uid" property="uid" jdbcType="VARCHAR"/>
+        <result column="valid" property="valid" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="baseWhere">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="ids != null and ids.size > 0">
+                and bi.income_id in
+                <foreach collection="ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="incomeId != null and incomeId != ''">
+                and bi.income_id = #{incomeId}
+            </if>
+            <if test="incomeName != null and incomeName != ''">
+                and bi.income_name like concat('%',#{incomeName},'%')
+            </if>
+            <if test="userId != null and userId != ''">
+                and bi.user_id = #{userId}
+            </if>
+            <if test="incomeUserId != null and incomeUserId != ''">
+                and bi.income_user_id = #{incomeUserId}
+            </if>
+            <if test="type != null">
+                and bi.type = #{type}
+            </if>
+            <if test="coin != null">
+                and bi.coin = #{coin}
+            </if>
+            <if test="ctime != null">
+                and bi.ctime = #{ctime}
+            </if>
+            <if test="utime != null">
+                and bi.utime = #{utime}
+            </if>
+            <if test="uid != null and uid != ''">
+                and bi.uid = #{uid}
+            </if>
+            <if test="valid != null">
+                and bi.valid = #{valid}
+            </if>
+            <if test="startDate != null">
+                and bi.utime &gt; #{startDate}
+            </if>
+            <if test="endDate != null">
+                and bi.utime &lt; #{endDate}
+            </if>
+            <if test="name != null and name != ''">
+                and su.name like concat('%',#{name},'%')
+            </if>
+        </trim>
+    </sql>
+    <select id="queryByCondition" resultType="com.project.module.bs.controller.vo.BsIncomeVO">
+        select distinct
+        bi.income_id as incomeId,
+        bi.income_name as incomeName,
+        bi.user_id as userId,
+        bi.income_user_id as incomeUserId,
+        bi.type as type,
+        bi.coin as coin,
+        bi.ctime as ctime,
+        bi.utime as utime,
+        bi.uid as uid,
+        bi.valid as valid,
+        su.name name
+        from bs_income bi
+        inner join sys_user su on su.user_id = bi.user_id
+        <include refid="baseWhere"></include>
+    </select>
+</mapper>

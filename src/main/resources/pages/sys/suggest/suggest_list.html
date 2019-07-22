@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="反馈人昵称" class="form-control" id="name" name="name"/>
+            </div>
+            <input placeholder="反馈人ID" class="form-control" id="userId" name="userId"/>
+            <input placeholder="开始日期" readonly="readonly" class="form-control layer-date" id="startDate"
+                   name="startDate"/>
+            <input placeholder="结束日期" readonly="readonly" class="form-control layer-date" id="endDate" name="endDate"/>
+            <select data-placeholder="状态" id="status" name="status" class="form-control chosen-select"
+                    tabindex="2">
+                <option></option>
+                <option value="true">已处理</option>
+                <option value="false">未处理</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <!--可以采用lay-event的方式监听操作，除了删除操作，公共js处理，其他按钮自行处理,比如edit-->
+    @if(update){
+    {{# if(d.status == 0){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="handle">立即处理</a>
+    {{# }}}
+    @}
+    @if(invalid){
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    @}
+</script>
+
+<script>
+    //公共条件（表格查询）
+    var condition = {
+        orderSorts: [{"order": "ctime", "sort": "desc"}]
+    };
+    //主字段
+    var idProperty = "suggestId";
+    //列名
+    var cols = [ //文档 :https://www.layui.com/doc/modules/table.html#cols
+        {field: 'ctime', title: '反馈时间', width: 160} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+        , {field: 'name', title: '反馈用户昵称'}
+        , {field: 'userId', title: '反馈用户ID'}
+        //, {field: 'phone', title: '手机'}
+        , {field: 'content', title: '反馈信息', width: 300}
+        , {field: 'picsName', title: '反馈图片'}
+        , {field: 'statusName', title: '反馈状态'}
+        , {field: 'result', title: '处理结果', width: 300}
+        , {title: '操作', fixed: 'right', width: 150, align: 'center', toolbar: '#barDemo'} //操作栏
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (single) {
+            single.status == 0 ? single.statusName = "未处理" : single.statusName = "已处理";
+            if (isNotEmpty(single.pics)) {
+                single.picsName = '<a href="javascript:openPhoto(\'' + single.pics + '\')">查看</a>';
+            }
+        });
+    });
+
+    function handle(data) {
+        openDialog("立即处理", '50%', '50%', defaultEditUrl + "?" + idProperty + "=" + data[idProperty], function () {
+            query();
+        });
+    }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!-- 头部 -->
+@include("/head-list.html"){}
+<!-- ECharts -->
+<script src="hui/js/plugins/echarts/echarts-all.js"></script>
+<!-- 首页显示设计 -->
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-success pull-right">月</span>
+                    <h5>收入</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">40 886,200</h1>
+                    <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i>
+                    </div>
+                    <small>总收入</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-info pull-right">全年</span>
+                    <h5>订单</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">275,800</h1>
+                    <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i>
+                    </div>
+                    <small>新订单</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-primary pull-right">今天</span>
+                    <h5>访客</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">106,120</h1>
+                    <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i>
+                    </div>
+                    <small>新访客</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-danger pull-right">最近一个月</span>
+                    <h5>活跃用户</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="no-margins">80,600</h1>
+                    <div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i>
+                    </div>
+                    <small>12月</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+
+    });
+
+    /**
+     *  显示饼状图
+     */
+    function showPie(id, data) {
+        var pieChart = echarts.init(document.getElementById(id));
+        var pieoption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)",
+                enterable: true
+            },
+            series: [
+                {
+                    type: 'pie',
+                    radius: '60%',
+                    center: ['50%', '50%'],
+                    data: data
+                }
+            ]
+        };
+        pieChart.setOption(pieoption);
+    }
+
+    /**
+     *  显示本月1号到现在的日期线性图
+     */
+    function showLine(id, data) {
+        var now = new Date();
+        var nowMonth = now.getMonth();           //当前月
+        var nowYear = now.getYear();             //当前年
+        nowYear += (nowYear < 2000) ? 1900 : 0;
+        var monthStartDate = new Date(nowYear, nowMonth, 1);
+        var keys = getDiffDate(monthStartDate, now);
+        var values = [];
+
+        keys.forEach(function (key) {
+            var have = false;
+            for (i = 0; i < data.length; i++) {
+                if (key == data[i].name) {
+                    have = true;
+                    values.push(data[i].value);
+                    break;
+                }
+            }
+            if (!have) {
+                values.push(0);
+            }
+        });
+        var pieChart = echarts.init(document.getElementById(id));
+        var pieoption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c}"
+            },
+            xAxis: {
+                type: 'category',
+                data: keys
+            },
+            dataZoom: [{
+                type: 'inside'
+            }],
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: "趋势图",
+                data: values,
+                type: 'line'
+            }]
+        };
+        pieChart.setOption(pieoption);
+    }
+
+    /**
+     * 计算两个时间之间的所有日期
+     */
+    function getDiffDate(startTime, endTime) {
+        var dateArr = [];
+        while ((endTime.getTime() - startTime.getTime()) > 0) {
+            var year = startTime.getFullYear();
+            var month = startTime.getMonth().toString().length === 1 ? "0" + (parseInt(startTime.getMonth().toString(), 10) + 1) : (startTime.getMonth() + 1);
+            var day = startTime.getDate().toString().length === 1 ? "0" + startTime.getDate() : startTime.getDate();
+            dateArr.push(year + "-" + month + "-" + day);
+            startTime.setDate(startTime.getDate() + 1);
+        }
+        return dateArr;
+    }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="举报用户昵称" class="form-control" id="name" name="name"/>
+            </div>
+            <input placeholder="举报用户ID" class="form-control" id="userId" name="userId"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="被举报用户昵称" class="form-control" id="reportUserName" name="reportUserName"/>
+            </div>
+            <input placeholder="被举报用户ID" class="form-control" id="reportUserId" name="reportUserId"/>
+            <select data-placeholder="举报类型" id="type" name="type" class="form-control chosen-select" tabindex="2">
+                <option value="">全部</option>
+                <option>骚扰</option>
+                <option>广告</option>
+                <option>诈骗</option>
+                <option>政治敏感</option>
+                <option>色情</option>
+                <option>暴力</option>
+                <option>传销</option>
+                <option>其他</option>
+            </select>
+            <select data-placeholder="状态" id="status" name="status" class="form-control chosen-select" tabindex="2">
+                <option value=""></option>
+                <option value="true">已处理</option>
+                <option value="false">未处理</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+<script type="text/html" id="barDemo">
+    <!--可以采用lay-event的方式监听操作，除了删除操作，公共js处理，其他按钮自行处理,比如edit-->
+    @if(update){
+    {{# if(d.status == 0){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="handle">立即处理</a>
+    {{# }}}
+    @}
+    @if(invalid){
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    @}
+</script>
+
+<script>
+    //公共条件（表格查询）
+    var condition = {orderSorts: [{"order": "ctime", "sort": "desc"}]};
+    //主字段
+    var idProperty = "reportId";
+    //列名
+    var cols = [ //文档 :https://www.layui.com/doc/modules/table.html#cols
+        {field: 'ctime', title: '举报时间', minWidth: 160} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+        , {field: 'name', title: '举报用户昵称'}
+        , {field: 'userId', title: '举报用户ID'}
+        , {field: 'reportUserName', title: '被举报用户昵称'}
+        , {field: 'reportUserId', title: '被举报用户ID'}
+        , {field: 'type', title: '类型'}
+        , {field: 'reason', title: '原因'}
+        , {field: 'result', title: '处理结果'}
+        , {field: 'uName', title: '处理管理员'}
+        , {field: 'pic', title: '举报图片'}
+        , {field: 'statusName', title: '状态'}
+        , {title: '操作', fixed: 'right', width: 150, align: 'center', toolbar: '#barDemo'} //操作栏
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (single, i) {
+            single.status ? single.statusName = "已处理" : single.statusName = "未处理";
+            if (isNotEmpty(single.pics)) {
+                single.pics = '<a href="javascript:openPhoto(\'' + single.pics + '\');">查看</a>';
+            }
+            single.status ? single.uName = single.uName : single.uName = "";
+        });
+    });
+
+    function handle(data) {
+        openDialog("立即处理", '50%', '50%', defaultEditUrl + "?" + idProperty + "=" + data[idProperty], function () {
+            query();
+        });
+    }
+</script>
+</body>
+</html>
+

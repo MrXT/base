@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="${ctxPath}/"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="renderer" content="webkit"/>
+    <title>服务端</title>
+    <meta name="keywords" content="项目"/>
+    <meta name="description" content="项目介绍"/>
+    <link rel="shortcut icon" href="hui/favicon.ico"/>
+    <link href="hui/css/bootstrap.min.css?v=3.3.6" rel="stylesheet"/>
+    <link href="hui/css/font-awesome.css?v=4.4.0" rel="stylesheet"/>
+    <link href="hui/css/animate.css" rel="stylesheet"/>
+    <link href="hui/css/style.css?v=4.1.0" rel="stylesheet"/>
+    <link href="hui/css/plugins/toastr/toastr.min.css" rel="stylesheet"/>
+    <script>
+        function logout() {
+            var basePath = "${ctxPath}/";
+            eraseCookie('Authorization');
+            window.location.href = basePath + "login/login";
+        }
+
+        function showModal() {
+            $('#newPwd').val("");
+            $('#oldPwd').val("");
+            $('#newPwd2').val("");
+            $('#pwdModal').modal('show');
+            $('#saveButton').attr('disabled', 'disabled');
+        }
+
+        //检查密码是否相同
+        function check(newPwd, newPwd2) {
+            if (newPwd != newPwd2) {
+                $("#newPwd").val("");
+                $("#newPwd2").val("");
+                tip($("#newPwd"), '新密码两次输入不一致！');
+                $("#newPwd").focus();
+            } else {
+                $('#saveButton').removeAttr('disabled');
+            }
+        }
+
+        //修改当前登录用户的密码
+        function updatePwd() {
+            if (!checkAreaNull('updateForm')) {
+                return false;
+            }// 检测不能为空的字段
+            doPost({
+                url: 'sys/user/updatePwd',
+                data: {
+                    app: true,
+                    oldPwd: $.md5($("#oldPwd").val()),
+                    newPwd: $.md5($("#newPwd").val())
+                },
+                success: function (result) {
+                    clearForm('updateForm');
+                    $('#pwdModal').modal('hide');
+                }
+            });
+        }
+
+        function updateHeadUrl() {
+            openDialog('修改头像', '80%', '80%', 'croper.html', function () {
+                var headUrl = sessionStorage.headUrl;
+                if (isNotEmpty(headUrl)) {
+                    doPost({
+                        "url": "sys/user/update",
+                        "modal": false,
+                        "data": {"headUrl": headUrl, "userId": [[${user.id}]]},
+                        "success": function (data) {
+                            $('#headUrlImg').attr('src', 'common/show?filePath=' + headUrl);
+                        }
+                    });
+                }
+            });
+        }
+
+        function uploadFile() {
+            openUpload(2, function () {
+                var uploadUrls = sessionStorage.uploadUrls;
+                showSuccessMsg(uploadUrls);
+            }, "jpg");
+        }
+    </script>
+</head>
+
+<div class="modal inmodal fade" id="pwdModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="oldPwd" class="col-sm-4 control-label">旧密码</label>
+                    <div class="col-sm-8">
+                        <input type="password" class="form-control" required="required" check-msg="旧密码不能为空!"
+                               name="oldPwd" id="oldPwd" placeholder="请输入旧密码"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="newPwd" class="col-sm-4 control-label">新密码</label>
+                    <div class="col-sm-8">
+                        <input type="password" class="form-control" required="required" check-msg="新密码不能为空!"
+                               name="newPwd" id="newPwd" placeholder="请输入新密码"
+                               onfocus="$('#saveButton').attr('disabled','disabled');"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="newPwd2" class="col-sm-4 control-label">再次输入新密码</label>
+                    <div class="col-sm-8">
+                        <input type="password" class="form-control" required="required" check-msg="再次输入新密码不能为空!"
+                               name="newPwd2" id="newPwd2" placeholder="请输入再次输入新密码"
+                               onblur="check(this.value,newPwd.value);"
+                               onfocus="$('#saveButton').attr('disabled','disabled');"/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="saveButton" onclick="updatePwd();" class="btn btn-primary btn-sm">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+<div id="wrapper">
+    <!--左侧导航开始-->
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="nav-close"><i class="fa fa-times-circle"></i>
+        </div>
+        <div class="sidebar-collapse">
+            <ul class="nav" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                        <span><img alt="image" id="headUrlImg" class="img-circle"
+                                   src="${user.headUrl != null ?('common/show?filePath=' + user.headUrl):'hui/img/profile_small.jpg'}"/></span>
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                               <span class="block m-t-xs"><strong class="font-bold">Welcome</strong></span>
+                                <span class="text-muted text-xs block"><span>${user.name != null ? user.name : user.username}</span><b
+                                        class="caret"></b></span>
+                                </span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="J_menuItem" onclick="showModal();">修改密码</a>
+                            </li>
+                            <li><a class="J_menuItem" onclick="updateHeadUrl();">修改头像</a></li>
+                            <li class="divider"></li>
+                            <li><a onclick="logout();">安全退出</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">H+
+                    </div>
+                </li>
+                <!-- <li>
+                     <a href="login/main">
+                         <i class="fa fa-home"></i>
+                         <span class="nav-label">主页</span>
+                     </a>
+                 </li>-->
+                @if(admin){
+                <li>
+                    <a href="#">
+                        <i class="fa fa fa-bar-chart-o"></i>
+                        <span class="nav-label">系统工具</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="tl/tablecode/manage">反向生成</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" onclick="openDialog('接口文档','1000px','70%','api.html')">接口文档</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="druid/index.html">DRUID监控</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem"
+                               onclick="openPhoto(['img/1.jpg','img/p_big1.jpg','img/profile_big.jpg'])">打开相册</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem"
+                               onclick="uploadFile()">上传文件</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem"
+                               onclick="playVideo('file/201905140911/157906746298335232.mp4')">视频播放</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" onclick="openDialog('表单','1000px','70%','hui/form.html')">Layui表单</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" onclick="openPage('hui/index.html')">H++</a>
+                        </li>
+                    </ul>
+                </li>
+                @}
+                @for(menu in menus) {
+                <li>
+                    <a href="#">
+                        <i class="${menu.menuIcon == null ? 'menu-icon fa fa-leaf black' : menu.menuIcon}"></i>
+                        <span class="nav-label">${menu.menuName}</span>
+                        <!--采用java的类来验证-->
+                        @if(!list.isEmpty(menu.chidren)){
+                        <span class="fa arrow"></span>
+                        @}
+                    </a>
+                    @if(menu.chidren.~size != 0){
+                    <ul class="nav nav-second-level">
+                        @for(subMenu in menu.chidren) {
+                        <li>
+                            <!--采用java的类来验证-->
+                            @if(validate.isNotEmpty(subMenu.menuUrl)){
+                            <a class="J_menuItem" href="${subMenu.menuUrl}">${subMenu.menuName}</a>
+                            @}
+                            @if(subMenu.menuUrl == null){
+                            <a href="#"><span>${subMenu.menuName}</span>
+                                @if(subMenu.chidren.~size != 0){
+                                <span class="fa arrow"></span></a>
+                            @}
+                            @}
+                            @if(subMenu.chidren.~size != 0){
+                            <ul class="nav nav-third-level">
+                                @for(subTwoMenu in subMenu.chidren) {
+                                <li>
+                                    @if(subTwoMenu.menuUrl != null){
+                                    <a class="J_menuItem" href="${subTwoMenu.menuUrl}">${subTwoMenu.menuName}</a>
+                                    @}
+                                    @if(subTwoMenu.menuUrl == null){
+                                    <a href="#"><span>${subTwoMenu.menuName}</span></a>
+                                    @}
+                                </li>
+                                @}
+                            </ul>
+                            @}
+                        </li>
+                        @}
+                    </ul>
+                    @}
+                </li>
+                @}
+            </ul>
+        </div>
+    </nav>
+    <!--左侧导航结束-->
+    <!--右侧部分开始-->
+    <div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary "
+                                              href="javascript:void(0);"><i class="fa fa-bars"></i> </a>
+                    <span class="product-name">项目名称</span>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                    <li class="dropdown hidden-xs">
+                        <a class="right-sidebar-toggle" aria-expanded="false">
+                            <i class="fa fa-tasks"></i> 主题
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="row content-tabs">
+            <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-backward"></i>
+            </button>
+            <nav class="page-tabs J_menuTabs">
+                <div class="page-tabs-content">
+                    <a href="javascript:;" class="active J_menuTab" data-id="login/default">首页</a>
+                </div>
+            </nav>
+            <button class="roll-nav roll-right J_tabRight"><i class="fa fa-forward"></i>
+            </button>
+            <div class="btn-group roll-nav roll-right">
+                <button class="dropdown J_tabClose" data-toggle="dropdown">关闭操作<span class="caret"></span>
+
+                </button>
+                <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                    <li class="J_tabShowActive"><a>定位当前选项卡</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="J_tabCloseAll"><a>关闭全部选项卡</a>
+                    </li>
+                    <li class="J_tabCloseOther"><a>关闭其他选项卡</a>
+                    </li>
+                </ul>
+            </div>
+            <a href="javascript:logout();" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i>
+                退出</a>
+        </div>
+        <div class="row J_mainContent" id="content-main">
+            <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="login/default"
+                    data-id="login/default" frameborder="0"
+                    seamless="seamless"></iframe>
+        </div>
+        <!--<div class="footer">
+            <div class="pull-right">&copy; 2014-2015
+            </div>
+        </div>-->
+    </div>
+    <!--右侧部分结束-->
+    <!--右侧边栏开始-->
+    <div id="right-sidebar">
+        <div class="sidebar-container">
+
+            <ul class="nav nav-tabs navs-3">
+
+                <li class="active">
+                    <a data-toggle="tab" href="#tab-1">
+                        <i class="fa fa-gear"></i> 主题
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="tab-1" class="tab-pane active">
+                    <div class="skin-setttings">
+                        <div class="title">主题设置</div>
+                        <div class="setings-item">
+                            <span>收起左侧菜单</span>
+                            <div class="switch">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="collapsemenu" class="onoffswitch-checkbox"
+                                           id="collapsemenu"/>
+                                    <label class="onoffswitch-label" for="collapsemenu">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="setings-item">
+                            <span>固定顶部</span>
+
+                            <div class="switch">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="fixednavbar" class="onoffswitch-checkbox"
+                                           id="fixednavbar"/>
+                                    <label class="onoffswitch-label" for="fixednavbar">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="setings-item">
+                                <span>
+                        固定宽度
+                    </span>
+
+                            <div class="switch">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="boxedlayout" class="onoffswitch-checkbox"
+                                           id="boxedlayout"/>
+                                    <label class="onoffswitch-label" for="boxedlayout">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="title">皮肤选择</div>
+                        <div class="setings-item default-skin nb">
+                                <span class="skin-name ">
+                         <a href="#" class="s-skin-0">
+                             默认皮肤
+                         </a>
+                    </span>
+                        </div>
+                        <div class="setings-item blue-skin nb">
+                                <span class="skin-name ">
+                        <a href="#" class="s-skin-1">
+                            蓝色主题
+                        </a>
+                    </span>
+                        </div>
+                        <div class="setings-item yellow-skin nb">
+                                <span class="skin-name ">
+                        <a href="#" class="s-skin-3">
+                            黄色/紫色主题
+                        </a>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--右侧边栏结束-->
+</div>
+
+<!-- 全局js -->
+<script src="hui/js/jquery.min.js?v=2.1.4"></script>
+<script src="hui/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="hui/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="hui/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="hui/js/jQuery.Cookie.js"></script>
+<script src="hui/js/jQuery.md5.js"></script>
+<!-- Toastr script -->
+<script src="hui/js/plugins/toastr/toastr.min.js"></script>
+<script src="js/common.js" type="text/javascript"></script>
+<!-- jQuery Validation plugin javascript-->
+<script src="hui/js/plugins/validate/jquery.validate.min.js"></script>
+<script src="hui/js/plugins/validate/messages_zh.min.js"></script>
+<!-- layer javascript -->
+<script src="hui/js/plugins/layer/layer.js"></script>
+
+<!-- 自定义js -->
+<script src="hui/js/hplus.js?v=4.1.0"></script>
+<script type="text/javascript" src="hui/js/contabs.js"></script>
+
+<!-- 第三方插件 -->
+<script src="hui/js/plugins/pace/pace.min.js"></script>
+
+
+</body>
+
+</html>

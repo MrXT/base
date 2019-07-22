@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <input type="hidden" name="appUser" value="false"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="管理员名称" class="form-control" id="name" name="name"/>
+            </div>
+            <!--  <input placeholder="开始日期" readonly="readonly" class="form-control layer-date" id="startDate"
+                     name="startDate"/>
+              <input placeholder="结束日期" readonly="readonly" class="form-control layer-date" id="endDate" name="endDate"/>-->
+            <select id="roleId" name="roleId" data-placeholder="关联角色" class="form-control chosen-select" tabindex="2">
+                <option></option>
+                @for(var role in roles){
+                <option value="${role.roleId}">${role.roleName}</option>
+                @}
+            </select>
+            <!-- <select data-placeholder="选择状态" id="status" name="status" class="form-control chosen-select" tabindex="2">
+                 <option value="" selected="selected">全部状态</option>
+                 <option value="2">有效</option>
+                 <option value="3">无效</option>
+             </select>-->
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <!--可以采用lay-event的方式监听操作，除了批量删除操作，公共js处理，其他按钮自行处理,比如add-->
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <!--可以采用lay-event的方式监听操作，除了删除操作，公共js处理，其他按钮自行处理,比如edit-->
+    <!--beelt语法-->
+    @if(update){
+    <!--layui语法-->
+    {{# if(d.userId != id){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="assignRole">分配角色</a>
+    <a class="layui-btn layui-btn-xs layui-btn-info" lay-event="resetPwd"> 重置密码</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    {{# if(d.status == 2){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="dongjie">锁定</a>
+    {{# } }}
+    {{# if(d.status == 3){ }}
+    <!--可以采用layuipl语法，传递参数-->
+    <a class="layui-btn layui-btn-xs" onclick="jiedong('{{d.userId}}')">解锁</a>
+    {{# } }}
+    @if(invalid){
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    @}
+    {{# } }}
+    @}
+</script>
+
+<div class="modal fade bs-example-modal-sm" data-backdrop="static" id="roleModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">分配角色</h4>
+            </div>
+            <div class="modal-body">
+                <select multiple="multiple" id="roleIds" class="form-control">
+                    @for(var role in roles){
+                    <option value="${role.roleId}">${role.roleName}</option>
+                    @}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="saveUserRoleBtn" class="btn btn-primary btn-sm">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //公共条件（表格查询）
+    var condition = {
+        orderSorts: [{
+            "order": "ctime",
+            "sort": "desc"
+        }]
+    };
+    var id = "${id}";
+    //主字段
+    var idProperty = "userId";
+    //列名
+    var cols = [ //文档 :https://www.layui.com/doc/modules/table.html#cols
+        {field: 'ctime', title: '创建时间'}
+        , {field: 'name', title: '管理员名称'} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+        , {field: 'roleName', title: '关联角色'}
+        , {field: 'username', title: '账号'}
+        , {field: 'remark', title: '备注'}
+        , {field: 'statusName', title: '状态'}
+        , {title: '操作', fixed: 'right', width: 350, align: 'center', toolbar: '#barDemo'} //操作栏
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (single, i) {
+            var roleName = [];
+            $.each(single.roles, function (i, role) {
+                roleName.push(role.roleName);
+            });
+            single.roleName = roleName.split(",");
+            if (single.status == 0) {
+                single.statusName = "<span style='color:blue'>待审核</span>";
+            } else if (single.status == 1) {
+                single.statusName = "<span style='color:red'>未通过</span>";
+            } else if (single.status == 2) {
+                single.statusName = "<span style='color:green'>未锁定</span>";
+            } else if (single.status == 3) {
+                single.statusName = "<span style='color:red'>锁定</span>";
+            }
+        });
+    });
+
+    function dongjie(data) {
+        var result = {userId: data.userId, status: 3};
+        doPost({
+            url: "sys/user/update",
+            data: result,
+            success: function (result) {
+                query();
+            }
+        });
+    }
+
+    function jiedong(userId) {
+        var result = {userId: userId, status: 2};
+        doPost({
+            url: "sys/user/update",
+            data: result,
+            success: function (result) {
+                query();
+            }
+        });
+    }
+
+    /**
+     * 分配角色
+     */
+    function assignRole(data) {
+        $("#roleModal").modal('show');
+        var roleIds = [];
+        data.roles.forEach(function (role, i) {
+            roleIds.push(role.roleId);
+        });
+        $('#roleIds').val(roleIds);
+        $("#saveUserRoleBtn").attr("onclick",
+            "saveUserRole('" + data.userId + "');");
+    }
+
+    /**
+     * 保存角色
+     */
+    function saveUserRole(id) {
+        doPost({
+            url: "sys/user/updateUserRole",
+            data: {
+                userId: id,
+                roleIds: $("#roleIds").val() != null ? $("#roleIds").val()
+                    .split(",") : ""
+            },
+            success: function (result) {
+                $("#roleModal").modal('hide');
+                query();
+            }
+        });
+    }
+
+    function resetPwd(data) {
+        confirmAndPost({
+            msg: "确定要重置密码？",
+            url: "sys/user/updateResetPassword",
+            data: {
+                userId: data.userId
+            },
+            success: function (result) {
+                showSuccessMsg("重置成功");
+                query();
+            }
+        });
+    }
+</script>
+</body>
+</html>
+

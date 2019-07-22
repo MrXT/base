@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <input placeholder="开始日期" readonly="readonly" class="form-control layer-date" id="startDate"
+                   name="startDate"/>
+            <input placeholder="结束日期" readonly="readonly" class="form-control layer-date" id="endDate" name="endDate"/>
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <!--可以采用lay-event的方式监听操作，除了批量删除操作，公共js处理，其他按钮自行处理,比如add-->
+        @if(insert){
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+        @}
+
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <!--可以采用lay-event的方式监听操作，除了删除操作，公共js处理，其他按钮自行处理,比如edit-->
+    @if(update){
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    @}
+    @if(invalid){
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    @}
+</script>
+
+<script>
+    //公共条件（表格查询）
+    var condition = {
+        orderSorts: [{"order": "money", "sort": "asc"}]
+    };
+    //主字段
+    var idProperty = "coinBuyId";
+    //列名
+    var cols = [ //文档 :https://www.layui.com/doc/modules/table.html#cols
+        {field: 'utime', title: '操作时间'} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+        , {field: 'rule', title: '规则'}
+        , {title: '操作', fixed: 'right', width: 200, align: 'center', toolbar: '#barDemo'} //操作栏
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (single) {
+            single.rule = "充值" + single.money + "元,用户可获得" + single.android + "金币";
+        });
+    });
+</script>
+</body>
+</html>
+

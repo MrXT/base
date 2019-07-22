@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <input type="hidden" name="type" value="100100"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="标题" class="form-control" id="messageName" name="messageName"/>
+            </div>
+            <input placeholder="开始日期" readonly="readonly" class="form-control layer-date" id="startDate"
+                   name="startDate"/>
+            <input placeholder="结束日期" readonly="readonly" class="form-control layer-date" id="endDate" name="endDate"/>
+            <!--<select data-placeholder="选择类型" id="type" name="type" class="form-control chosen-select"
+                    tabindex="2">
+                <option value="">全部</option>
+                <option value="100100">平台消息</option>
+                <option value="100101" selected="selected">系统消息</option>
+            </select>-->
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <!--可以采用lay-event的方式监听操作，除了批量删除操作，公共js处理，其他按钮自行处理,比如add-->
+        @if(insert){
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增平台消息</button>
+        @}
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <!--可以采用lay-event的方式监听操作，除了删除操作，公共js处理，其他按钮自行处理,比如edit-->
+    {{# if(d.type == "100100"){ }}
+    @if(update){
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    @}
+    <a class="layui-btn layui-btn-xs" lay-event="scan">查看图片</a>
+    {{# } }}
+    @if(invalid){
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    @}
+</script>
+
+<script>
+    //公共条件（表格查询）
+    var condition = {
+        orderSorts: [{
+            "order": "utime",
+            "sort": "desc"
+        }]
+    };
+    //主字段
+    var idProperty = "messageId";
+    //列名
+    var cols = [ //文档 :https://www.layui.com/doc/modules/table.html#cols
+        {field: 'ctime', title: '添加时间', width: 160} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+        , {field: 'messageName', title: '标题'}
+        , {field: 'typeName', title: '消息类型'}
+        /*, {field: 'name', title: '接收人'}*/
+        /* , {field: 'scanContent', title: '状态'}*/
+        , {title: '操作', fixed: 'right', width: 200, align: 'center', toolbar: '#barDemo'} //操作栏
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (message) {
+            message.scanContent = message.scan ? "已查看" : "未查看";
+            message.typeName = (message.type == '100100' ? '平台消息' : '系统消息')
+        });
+    });
+
+    function scan(data) {
+        openPhoto(data.url);
+    }
+
+</script>
+</body>
+</html>
+

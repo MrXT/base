@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.module.cf.dao.CfCoinBuyMapper">
+    <resultMap id="BaseResultMap" type="com.project.entity.CfCoinBuy">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="coin_buy_id" property="coinBuyId" jdbcType="VARCHAR"/>
+        <result column="coin_buy_name" property="coinBuyName" jdbcType="VARCHAR"/>
+        <result column="money" property="money" jdbcType="INTEGER"/>
+        <result column="android" property="android" jdbcType="INTEGER"/>
+        <result column="ios" property="ios" jdbcType="INTEGER"/>
+        <result column="ctime" property="ctime" jdbcType="TIMESTAMP"/>
+        <result column="utime" property="utime" jdbcType="TIMESTAMP"/>
+        <result column="uid" property="uid" jdbcType="VARCHAR"/>
+        <result column="valid" property="valid" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="baseWhere">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="ids != null and ids.size > 0">
+                and ccb.coin_buy_id in
+                <foreach collection="ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="coinBuyId != null and coinBuyId != ''">
+                and ccb.coin_buy_id = #{coinBuyId}
+            </if>
+            <if test="coinBuyName != null and coinBuyName != ''">
+                and ccb.coin_buy_name like concat('%',#{coinBuyName},'%')
+            </if>
+            <if test="money != null">
+                and ccb.money = #{money}
+            </if>
+            <if test="android != null">
+                and ccb.android = #{android}
+            </if>
+            <if test="ios != null">
+                and ccb.ios = #{ios}
+            </if>
+            <if test="ctime != null">
+                and ccb.ctime = #{ctime}
+            </if>
+            <if test="utime != null">
+                and ccb.utime = #{utime}
+            </if>
+            <if test="uid != null and uid != ''">
+                and ccb.uid = #{uid}
+            </if>
+            <if test="valid != null">
+                and ccb.valid = #{valid}
+            </if>
+            <if test="startDate != null">
+                and ccb.utime &gt; #{startDate}
+            </if>
+            <if test="endDate != null">
+                and ccb.utime &lt; #{endDate}
+            </if>
+        </trim>
+    </sql>
+    <select id="queryByCondition" resultType="com.project.module.cf.controller.vo.CfCoinBuyVO">
+        select
+        ccb.coin_buy_id as coinBuyId,
+        ccb.coin_buy_name as coinBuyName,
+        ccb.money as money,
+        ccb.android as android,
+        ccb.ios as ios,
+        ccb.ctime as ctime,
+        ccb.utime as utime,
+        ccb.uid as uid,
+        ccb.valid as valid
+        from cf_coin_buy ccb
+        <include refid="baseWhere"></include>
+    </select>
+</mapper>

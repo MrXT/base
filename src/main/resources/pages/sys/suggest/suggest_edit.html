@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-edit.html"){}
+<body class="no-skin">
+<!--layui表单风格与自带验证 https://www.layui.com/doc/modules/form.html#attr-->
+<form class="layui-form" action="" lay-filter="save-form">
+    <input type="hidden" name="suggestId" id="suggestId" value="${sysSuggestVO.suggestId}"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">处理结果</label>
+        <div class="layui-input-block">
+            <input type="text" name="result" lay-verify="required" autocomplete="off" placeholder="处理结果"
+                   class="layui-input"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="save-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    //主字段
+    var idProperty = "suggestId";
+    //通过id获取该条数据
+    var sysSuggest = getDataById($("#suggestId").val());
+    //第一个参数 自定义验证 https://www.layui.com/doc/modules/form.html#verify
+    //第二个参数 表单初始化json参数
+    initForm({}, sysSuggest);
+
+    //修改前的操作
+    function updateBefore(param) {
+        return true;
+    }
+
+    //新增前的操作
+    function insertBefore(param) {
+        return true;
+    }
+
+    //保存前的共同操作，updateBefore 与 insertBefore 在 saveBefore 之前
+    function saveBefore(param) {
+        param.status = true;
+        return true;
+    }
+</script>
+</body>
+</html>
+

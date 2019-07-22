@@ -1,0 +1,68 @@
+<base href="${ctxPath}/"/>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="renderer" content="webkit"/>
+<title>服务端</title>
+<meta name="keywords" content="项目"/>
+<meta name="description" content="项目介绍"/>
+<!--[if lt IE 9]>
+<meta http-equiv="refresh" content="0;ie.html"/>
+<![endif]-->
+<link rel="shortcut icon" href="hui/favicon.ico"/>
+<link href="hui/css/font-awesome.css?v=4.4.0" rel="stylesheet"/>
+<link href="hui/css/animate.css" rel="stylesheet"/>
+<link href="hui/css/style.css?v=4.1.0" rel="stylesheet"/>
+<link href="hui/css/plugins/toastr/toastr.min.css" rel="stylesheet"/>
+<link href="hui/layui/css/layui.css" rel="stylesheet"/>
+<link href="hui/css/plugins/chosen/chosen.css" rel="stylesheet"/>
+<!-- 全局js -->
+<script src="hui/js/jquery.min.js?v=2.1.4"></script>
+<script src="hui/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="hui/js/jQuery.Cookie.js"></script>
+<script src="hui/js/jQuery.md5.js"></script>
+<!-- Toastr script -->
+<script src="hui/js/plugins/toastr/toastr.min.js"></script>
+<!-- jQuery Validation plugin javascript-->
+<script src="hui/js/plugins/validate/jquery.validate.min.js"></script>
+<script src="hui/js/plugins/validate/messages_zh.min.js"></script>
+<!-- layer javascript -->
+<script src="hui/js/plugins/layer/layer.js"></script>
+<script src="hui/layui/layui.js"></script>
+<script src="hui/js/plugins/layer/laydate/laydate.js"></script>
+<!-- Chosen -->
+<script src="hui/js/plugins/chosen/chosen.jquery.js"></script>
+<script src="js/common.js" type="text/javascript"></script>
+<!-- 日期处理工具 -->
+<script src="js/date.js"></script>
+<style>
+    .layui-form {
+        padding: 20px;
+    }
+
+    ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: #bbb;
+    }
+
+    :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color: #bbb;
+    }
+
+    ::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: #bbb;
+    }
+
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: #bbb;
+    }
+</style>
+<script>
+    //可以使用beetl的安全输出，也可以使用beetl的has方法判断是否有某个属性
+    @if (has(url)) {
+        var mainUrl = "${url}";
+    @}
+    @if (!has(url)) {
+        var mainUrl = "";
+    @}
+    var basePath = "${ctxPath}/";
+</script>
+<script src="js/head-edit.js"></script>

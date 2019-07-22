@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<style>
+    #firstForm .col-xs-12 {
+        margin-top: 10px;
+        padding: 0px 30px;
+        line-height: 30px;
+    }
+
+    #firstForm .col-xs-12 input {
+        width: 70px;
+        text-align: center;
+        margin: 0px 5px;
+        line-height: 20px;
+    }
+
+    .layui-form-switch {
+        width: 50px;
+        margin-top: 0px;
+    }
+
+
+</style>
+<body class="no-skin">
+<form id="firstForm" class="layui-form">
+    <div class="row">
+        <div class="col-xs-12">
+            <b>1、基本配置</b><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;配置<input type="number" min="1" name="config" value="${result.config}"/>
+        </div>
+        <div class="col-xs-12">
+            <button id="saveButton" onclick="save();" type="button" class="btn btn-primary btn-sm">保存</button>
+        </div>
+    </div>
+</form>
+<script>
+
+    /*
+     * 保存信息
+     */
+    var newUser = null;
+    var vistor = null;
+
+    function save() {
+        var data = getAreaVal('firstForm');
+        data.newUser = newUser;
+        data.vistor = vistor;
+        doPost({
+            url: 'cf/update',
+            data: data,
+            success: function (rdata) {
+                showSuccessMsg("保存成功！");
+                window.location.href = window.location.href;
+            }
+        });
+    }
+</script>
+</body>
+</html>
+

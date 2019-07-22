@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.module.sys.dao.SysSuggestMapper">
+    <resultMap id="BaseResultMap" type="com.project.entity.SysSuggest">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="suggest_id" property="suggestId" jdbcType="VARCHAR"/>
+        <result column="suggest_name" property="suggestName" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="BIT"/>
+        <result column="ctime" property="ctime" jdbcType="TIMESTAMP"/>
+        <result column="utime" property="utime" jdbcType="TIMESTAMP"/>
+        <result column="uid" property="uid" jdbcType="VARCHAR"/>
+        <result column="valid" property="valid" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="baseWhere">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="ids != null and ids.size > 0">
+                and ss.suggest_id in
+                <foreach collection="ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="suggestId != null and suggestId != ''">
+                and ss.suggest_id = #{suggestId}
+            </if>
+            <if test="suggestName != null and suggestName != ''">
+                and ss.suggest_name like concat('%',#{suggestName},'%')
+            </if>
+            <if test="userId != null and userId != ''">
+                and ss.user_id = #{userId}
+            </if>
+            <if test="content != null and content != ''">
+                and ss.content = #{content}
+            </if>
+            <if test="phone != null and phone != ''">
+                and ss.phone = #{phone}
+            </if>
+            <if test="status != null">
+                and ss.status = #{status}
+            </if>
+            <if test="ctime != null">
+                and ss.ctime = #{ctime}
+            </if>
+            <if test="utime != null">
+                and ss.utime = #{utime}
+            </if>
+            <if test="uid != null and uid != ''">
+                and ss.uid = #{uid}
+            </if>
+            <if test="valid != null">
+                and ss.valid = #{valid}
+            </if>
+            <if test="startDate != null">
+                and ss.ctime &gt; #{startDate}
+            </if>
+            <if test="endDate != null">
+                and ss.ctime &lt; #{endDate}
+            </if>
+            <if test="name != null and name != ''">
+                and su.name like concat('%',#{name},'%')
+            </if>
+        </trim>
+    </sql>
+    <select id="queryByCondition" resultType="com.project.module.sys.controller.vo.SysSuggestVO">
+        select distinct
+        ss.suggest_id as suggestId,
+        ss.suggest_name as suggestName,
+        ss.user_id as userId,
+        ss.content as content,
+        ss.status as status,
+        ss.phone as phone,
+        ss.pics as pics,
+        ss.result as result,
+        ss.ctime as ctime,
+        ss.utime as utime,
+        ss.uid as uid,
+        ss.valid as valid,
+        su.name name
+        from sys_suggest ss
+        inner join sys_user su on su.user_id = ss.user_id
+        <include refid="baseWhere"></include>
+    </select>
+</mapper>

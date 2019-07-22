@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-edit.html"){}
+<body class="no-skin">
+<!--layui表单风格与自带验证 https://www.layui.com/doc/modules/form.html#attr-->
+<form class="layui-form" action="" lay-filter="save-form">
+    <input type="hidden" name="userId" id="userId" value="${userDTO.userId!}"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">管理员名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="required" autocomplete="off" placeholder="管理员姓名"
+                   class="layui-input"/>
+        </div>
+    </div>
+    @if(userDTO.userId == null){
+    <div class="layui-form-item">
+        <label class="layui-form-label">账号</label>
+        <div class="layui-input-block">
+            <input type="text" name="username" lay-verify="required" autocomplete="off" placeholder="登录账号"
+                   class="layui-input"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-block">
+            <input type="password" name="password" lay-verify="required" autocomplete="off" placeholder="密码"
+                   class="layui-input"/>
+        </div>
+    </div>
+    @}
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+            <input type="text" name="remark" lay-verify="required" autocomplete="off" placeholder="备注"
+                   class="layui-input"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="save-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    //主字段
+    var idProperty = "userId";
+
+    //通过id获取该条数据
+    var user = getDataById($("#userId").val());
+    //第一个参数 自定义验证 https://www.layui.com/doc/modules/form.html#verify
+    //第二个参数 表单初始化json参数
+    initForm({}, user);
+
+    //修改前的操作
+    function updateBefore(param) {
+        return true;
+    }
+
+    //新增前的操作
+    function insertBefore(param) {
+        return true;
+    }
+
+    //保存前的共同操作，updateBefore 与 insertBefore 在 saveBefore 之前
+    function saveBefore(param) {
+        if (isNotEmpty(param.password)) {
+            param.password = $.md5(param.password);
+        }
+        return true;
+    }
+
+
+</script>
+</body>
+</html>
+

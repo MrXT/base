@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds">
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+	<logger name="org.springframework.web" level="INFO" /><!-- springmvc打印 -->
+	<logger name="com.project" level="DEBUG"></logger><!-- 业务打印日志级别 -->
+	<appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<!--过滤 Error-->
+			<level>ERROR</level>
+			<!--匹配到就禁止-->
+			<onMatch>DENY</onMatch>
+			<!--没有匹配到就允许-->
+			<onMismatch>ACCEPT</onMismatch>
+		</filter>
+		<File>logs/info.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>logs/info-%d{yyyyMMdd}.log.%i</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>7</maxHistory><!--默认保留多少天的历史记录-->
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<!-- <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{15} -%msg%n
+			</Pattern> -->
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{15} -%msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<File>logs/error.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>logs/error-%d{yyyyMMdd}.log.%i
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<!-- <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{15} -%msg%n
+			</Pattern> -->
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{15} -%msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="INFO_FILE" />
+		<appender-ref ref="ERROR_FILE" />
+	</root>
+
+</configuration>

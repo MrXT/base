@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.module.bs.dao.BsRechargeMapper">
+    <resultMap id="BaseResultMap" type="com.project.entity.BsRecharge">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="recharge_id" property="rechargeId" jdbcType="VARCHAR"/>
+        <result column="recharge_name" property="rechargeName" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="coin" property="coin" jdbcType="INTEGER"/>
+        <result column="money" property="money" jdbcType="INTEGER"/>
+        <result column="pay_type" property="payType" jdbcType="INTEGER"/>
+        <result column="ctime" property="ctime" jdbcType="TIMESTAMP"/>
+        <result column="utime" property="utime" jdbcType="TIMESTAMP"/>
+        <result column="uid" property="uid" jdbcType="VARCHAR"/>
+        <result column="valid" property="valid" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="baseWhere">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="ids != null and ids.size > 0">
+                and br.recharge_id in
+                <foreach collection="ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="rechargeId != null and rechargeId != ''">
+                and br.recharge_id = #{rechargeId}
+            </if>
+            <if test="rechargeName != null and rechargeName != ''">
+                and br.recharge_name like concat('%',#{rechargeName},'%')
+            </if>
+            <if test="userId != null and userId != ''">
+                and br.user_id = #{userId}
+            </if>
+            <if test="coin != null">
+                and br.coin = #{coin}
+            </if>
+            <if test="money != null">
+                and br.money = #{money}
+            </if>
+            <if test="payType != null">
+                and br.pay_type = #{payType}
+            </if>
+            <if test="ctime != null">
+                and br.ctime = #{ctime}
+            </if>
+            <if test="utime != null">
+                and br.utime = #{utime}
+            </if>
+            <if test="uid != null and uid != ''">
+                and br.uid = #{uid}
+            </if>
+            <if test="valid != null">
+                and br.valid = #{valid}
+            </if>
+            <if test="startDate != null">
+                and br.ctime &gt; #{startDate}
+            </if>
+            <if test="endDate != null">
+                and br.ctime &lt; #{endDate}
+            </if>
+            <if test="name != null and name != ''">
+                and su.name like concat('%',#{name},'%')
+            </if>
+        </trim>
+    </sql>
+    <select id="queryByCondition" resultType="com.project.module.bs.controller.vo.BsRechargeVO">
+        select distinct
+        br.recharge_id as rechargeId,
+        br.recharge_name as rechargeName,
+        br.user_id as userId,
+        br.coin as coin,
+        br.money as money,
+        br.pay_type as payType,
+        br.ctime as ctime,
+        br.utime as utime,
+        br.uid as uid,
+        br.valid as valid,
+        su.name name
+        from bs_recharge br
+        inner join sys_user su on su.user_id = br.user_id
+        <include refid="baseWhere"></include>
+    </select>
+</mapper>

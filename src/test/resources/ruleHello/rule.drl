@@ -1,0 +1,17 @@
+package ruleHello;
+import com.project.test.drools.Result;
+rule "test001"
+    when
+        $res:Result();
+        $tmp:String();
+    then
+        if($tmp.equals($res.getRes())){
+            System.out.println($res.getRes());
+        }else{
+            System.out.println($tmp);
+             if ($res.getRes().startsWith($tmp)) {
+                  $tmp = $res.getRes().substring(0,$tmp.length()+1);
+                  insert($tmp);
+             }
+        }
+    end

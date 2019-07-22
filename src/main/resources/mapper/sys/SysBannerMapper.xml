@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.module.sys.dao.SysBannerMapper">
+    <resultMap id="BaseResultMap" type="com.project.entity.SysBanner">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="banner_id" property="bannerId" jdbcType="VARCHAR"/>
+        <result column="banner_name" property="bannerName" jdbcType="VARCHAR"/>
+        <result column="pic" property="pic" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="sort" property="sort" jdbcType="INTEGER"/>
+        <result column="publish" property="publish" jdbcType="BIT"/>
+        <result column="ctime" property="ctime" jdbcType="TIMESTAMP"/>
+        <result column="utime" property="utime" jdbcType="TIMESTAMP"/>
+        <result column="uid" property="uid" jdbcType="VARCHAR"/>
+        <result column="valid" property="valid" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="baseWhere">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="ids != null and ids.size > 0">
+                and sb.banner_id in
+                <foreach collection="ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="bannerId != null and bannerId != ''">
+                and sb.banner_id = #{bannerId}
+            </if>
+            <if test="bannerName != null and bannerName != ''">
+                and sb.banner_name like concat('%',#{bannerName},'%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (sb.banner_name like concat(#{keyword},'%') <!-- or 字段二 like #{onlyKeyword} -->)
+            </if>
+            <if test="pic != null and pic != ''">
+                and sb.pic = #{pic}
+            </if>
+            <if test="content != null and content != ''">
+                and sb.content = #{content}
+            </if>
+            <if test="type != null">
+                and sb.type = #{type}
+            </if>
+            <if test="remark != null and remark != ''">
+                and sb.remark = #{remark}
+            </if>
+            <if test="sort != null">
+                and sb.sort = #{sort}
+            </if>
+            <if test="publish != null">
+                and sb.publish = #{publish}
+            </if>
+            <if test="ctime != null">
+                and sb.ctime = #{ctime}
+            </if>
+            <if test="utime != null">
+                and sb.utime = #{utime}
+            </if>
+            <if test="uid != null and uid != ''">
+                and sb.uid = #{uid}
+            </if>
+            <if test="valid != null">
+                and sb.valid = #{valid}
+            </if>
+            <if test="startDate != null">
+                and sb.ctime &gt; #{startDate}
+            </if>
+            <if test="endDate != null">
+                and sb.ctime &lt; #{endDate}
+            </if>
+        </trim>
+    </sql>
+    <select id="queryByCondition" resultType="com.project.module.sys.controller.vo.SysBannerVO">
+        select
+        sb.banner_id as bannerId,
+        sb.banner_name as bannerName,
+        sb.pic as pic,
+        sb.content as content,
+        sb.type as type,
+        sb.remark as remark,
+        sb.sort as sort,
+        sb.publish as publish,
+        sb.ctime as ctime,
+        sb.utime as utime,
+        sb.uid as uid,
+        sb.valid as valid
+        from sys_banner sb
+        <include refid="baseWhere"></include>
+    </select>
+</mapper>

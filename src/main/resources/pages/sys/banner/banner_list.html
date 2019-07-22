@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="Banner标题" class="form-control" id="bannerName" name="bannerName"/>
+            </div>
+            <input placeholder="开始日期" readonly="readonly" class="form-control layer-date" id="startDate"
+                   name="startDate"/>
+            <input placeholder="结束日期" readonly="readonly" class="form-control layer-date" id="endDate" name="endDate"/>
+            <select data-placeholder="跳转方案" id="type" name="type" class="form-control chosen-select" tabindex="2">
+                <option></option>
+                <option value="1">外部链接</option>
+                <option value="2">内部页面</option>
+                <option value="3">不跳转</option>
+            </select>
+            <select data-placeholder="选择状态" id="publish" name="publish" class="form-control chosen-select" tabindex="2">
+                <option value="" selected="selected">全部状态</option>
+                <option value="true">已发布</option>
+                <option value="false">未发布</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <!--可以采用lay-event的方式监听操作，除了批量删除与新增操作，公共js处理，其他按钮自行处理 -->
+        @if(insert){
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+        @}
+        @if(invalid){
+        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete">批量删除</button>
+        @}
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <!--可以采用lay-event的方式监听操作，除了删除操作，公共js处理，其他按钮自行处理-->
+    @if(insert){
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    {{# if(!d.publish){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="publish">发布</a>
+    {{# } }}
+    {{# if(d.publish){ }}
+    <!--可以采用layuipl语法，传递参数-->
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="cancelPublish">取消发布</a>
+    {{# } }}
+    @}
+    @if(invalid){
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    @}
+</script>
+<script>
+    //公共条件（表格查询）
+    var condition = {
+        orderSorts: [{
+            "order": "ctime",
+            "sort": "desc"
+        }]
+    };
+    //主字段
+    var idProperty = "bannerId";
+    //文档 :https://www.layui.com/doc/modules/table.html#cols
+    // width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+    // align: 'center' 单元格内容水平居中
+    var cols = [
+        {type: 'checkbox'} //复选框
+        , {field: 'ctime', title: '添加时间', minWidth: 160} //复选框
+        , {field: 'bannerName', title: 'Banner标题'}
+        , {field: 'sort', title: '排序'}
+        , {field: 'pic', title: '图片'}
+        , {field: 'type', title: '跳转方案'}
+        , {field: 'remark', title: '备注'}
+        , {field: 'publishName', title: '状态'}
+        , {title: '操作', fixed: 'right', width: 200, align: 'center', toolbar: '#barDemo'} //操作栏
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (single, i) {
+            //Ajax数据自定义
+            single.publish ? single.publishName = "已发布" : single.publishName = "未发布";
+            switch (single.type) {
+                case 1:
+                    single.type = "外部链接"
+                    break;
+                case 2:
+                    single.type = "内部页面"
+                    break;
+                default:
+                    single.type = "不跳转";
+            }
+            if (isNotEmpty(single.pic)) {
+                single.pic = '<a href="javascript:openPhoto(\'' + single.pic + '\')">查看</a>';
+            }
+        });
+    });
+
+    function publish(data) {
+        var result = {bannerId: data.bannerId, publish: true};
+        doPost({
+            url: "sys/banner/update",
+            data: result,
+            success: function (result) {
+                query();
+            }
+        });
+    }
+
+    function cancelPublish(data) {
+        var result = {bannerId: data.bannerId, publish: false};
+        doPost({
+            url: "sys/banner/update",
+            data: result,
+            success: function (result) {
+                query();
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
+

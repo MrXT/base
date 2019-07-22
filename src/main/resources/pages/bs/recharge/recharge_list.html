@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="row">
+    <form id="searchForm" class="form-inline">
+        <div class="col-md-12 ">
+            <input type="hidden" name="valid" value="true"/>
+            <div class="input-group">
+                <span class="input-group-addon"><span class="fa fa-search"></span></span>
+                <input placeholder="充值用户" class="form-control" id="name" name="name"/>
+            </div>
+            <input placeholder="开始日期" readonly="readonly" class="form-control layer-date" id="startDate"
+                   name="startDate"/>
+            <input placeholder="结束日期" readonly="readonly" class="form-control layer-date" id="endDate" name="endDate"/>
+            <button type="button" class="btn btn-sm btn-primary" onclick="query();">查询</button>
+            <button type="button" class="btn btn-sm btn-default" onclick="clearForm('searchForm');">清空</button>
+        </div>
+    </form>
+    <div class="col-md-12">
+        <table id="simple-table" class="layui-hide" lay-filter="filter">
+        </table>
+    </div>
+</div>
+
+<script>
+    //公共条件（表格查询）
+    var condition = {orderSorts: [{"order": "ctime", "sort": "desc"}]};
+    //主字段
+    var idProperty = "rechargeId";
+    //列名
+    var cols = [ //文档 :https://www.layui.com/doc/modules/table.html#cols
+        {field: 'ctime', title: '充值时间'} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+        , {field: 'name', title: '充值用户'}
+        , {field: 'money', title: '支付金额(元)'}
+        , {field: 'payTypeName', title: '支付方式'}
+        , {field: 'coin', title: '充值金币'}
+    ];
+    //初始化表格
+    initTable(cols, function (data) {
+        data.list.forEach(function (single, i) {
+            if (single.payType == 1) {
+                single.payTypeName = "支付宝";
+            } else if (single.payType == 2) {
+                single.payTypeName = "微信";
+            } else {
+                single.payTypeName = "内购";
+            }
+        });
+    });
+</script>
+</body>
+</html>
+

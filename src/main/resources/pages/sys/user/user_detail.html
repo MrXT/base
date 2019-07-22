@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<!-- 头部 -->
+@include("/head-list.html"){}
+<body class="no-skin">
+<div class="wrapper wrapper-content">
+    <div class="row animated fadeInRight">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>用户资料</h5>
+                </div>
+                <div>
+                    <div class="ibox-content no-padding border-left-right">
+                        <img alt="image" class="img-responsive" id="head-url" src="">
+                    </div>
+
+                    <div class="ibox-content profile-content user-profile">
+                        <div class="row" style="line-height: 40px;">
+                            <div class="col-sm-4">昵称：<span id="name"></span></div>
+                            <div class="col-sm-4">手机：<span id="phone"></span></div>
+                            <div class="col-sm-4">性别：<span id="sexName"></span></div>
+                            <div class="col-sm-4">余额：<span id="balance"></span></div>
+                            <div class="col-sm-4">财富：<span id="integrate"></span></div>
+                            <div class="col-sm-4">状态：<span id="statusName"></span></div>
+                            <div class="col-sm-12">个性签名：<span id="sign"></span></div>
+                            <div class="col-sm-12">标签：<span id="tags"></span></div>
+                        </div>
+                        <div class="row" style="line-height: 40px;">
+                            <div class="col-sm-4">
+                                <strong>0</strong> 文章
+                            </div>
+                            <div class="col-sm-4">
+                                <strong>0</strong> 关注
+                            </div>
+                            <div class="col-sm-4">
+                                <strong>0</strong> 关注者
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>最新动态</h5>
+                </div>
+                <div class="ibox-content">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //主字段
+    var idProperty = "userId";
+    $(function () {
+        //通过id获取该条数据
+        var user = getDataById("${userDTO.userId}");
+        if (user != null) {
+            if (isNotEmpty(user.headUrl)) {
+                var pic = user.headUrl;
+                if (pic.indexOf("http") != 0) {
+                    pic = "common/show?filePath=" + pic;
+                }
+                $('#head-url').attr('src', pic);
+            } else {
+                $('#head-url').hide();
+            }
+            $.each($(".user-profile span"), function (i, dom) {
+                if (dom.id == "statusName") {
+                    if (user.status == 0) {
+                        $(dom).html("待审核");
+                    } else if (user.status == 1) {
+                        $(dom).html("未通过");
+                    } else if (user.status == 2) {
+                        $(dom).html("正常");
+                    } else if (user.status == 3) {
+                        $(dom).html("锁定");
+                    }
+                } else if (dom.id == "sexName") {
+                    if (user.sex == 1) {
+                        $(dom).html("女");
+                    } else if (user.sex == 2) {
+                        $(dom).html("男");
+                    } else {
+                        $(dom).html("未知");
+                    }
+                } else {
+                    $(dom).html(user[dom.id]);
+                }
+            });
+        }
+    });
+
+
+</script>
+</body>
+</html>
+

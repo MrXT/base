@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.module.sys.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.project.entity.User">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="ctime" property="ctime" jdbcType="TIMESTAMP"/>
+        <result column="uid" property="uid" jdbcType="VARCHAR"/>
+        <result column="utime" property="utime" jdbcType="TIMESTAMP"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="valid" property="valid" jdbcType="BIT"/>
+        <result column="salt" property="salt" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="head_url" property="head_url" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="baseWhere">
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="userId != null and userId != ''">
+                and su.user_id = #{userId}
+            </if>
+            <if test="username != null and username != ''">
+                and su.username like concat('%',#{username},'%')
+            </if>
+            <if test="name != null and name != ''">
+                and su.name like concat('%',#{name},'%')
+            </if>
+            <if test="ctime != null">
+                and su.ctime = #{ctime}
+            </if>
+            <if test="uid != null and uid != ''">
+                and su.uid = #{uid}
+            </if>
+            <if test="utime != null">
+                and su.utime = #{utime}
+            </if>
+            <if test="password != null and password != ''">
+                and su.password = #{password}
+            </if>
+            <if test="valid != null">
+                and su.valid = #{valid}
+            </if>
+            <if test="status != null">
+                and su.status = #{status}
+            </if>
+            <if test="salt != null and salt != ''">
+                and su.salt = #{salt}
+            </if>
+            <if test="phone != null and phone != ''">
+                and su.phone = #{phone}
+            </if>
+            <if test="startDate != null">
+                and su.ctime &gt; #{startDate}
+            </if>
+            <if test="endDate != null">
+                and su.ctime &lt; #{endDate}
+            </if>
+            <if test="sex != null">
+                and su.sex = #{sex}
+            </if>
+            <if test="roleId != null and roleId != ''">
+                and surr.role_id = #{roleId}
+            </if>
+            <if test="appUser != null">
+                and su.app_user = #{appUser}
+            </if>
+        </trim>
+    </sql>
+    <select id="queryMapByCondition" resultType="map">
+        select distinct
+        su.user_id as userId,
+        su.username as username,
+        su.name as name,
+        su.ctime as ctime,
+        su.uid as uid,
+        su.utime as utime,
+        su.password as password,
+        su.valid as valid,
+        su.status as status,
+        su.salt as salt,
+        su.phone as phone,
+        su.email as email,
+        su.head_url as headUrl,
+        su.background as background,
+        su.remark as remark,
+        su.sex as sex,
+        su.birth as birth,
+        TIMESTAMPDIFF(YEAR, str_to_date(su.birth,'%Y-%m-%d'),
+        CURDATE()) as age,
+        su.last_lng as lastLng,
+        su.last_lat as lastLat,
+        su.wxid as wxid,
+        su.pass as pass,
+        su.pay_pass as payPass,
+        su.sign as sign,
+        su.qqid as qqid,
+        su.wxno as wxno,
+        su.qqno as qqno,
+        su.wxcode as wxcode,
+        su.tags as tags,
+        su.balance as balance,
+        su.integrate as integrate,
+        su.app_user as appUser
+        from sys_user su
+        <if test="roleId != null and roleId != ''">
+            inner join sys_user_role_rel surr on surr.user_id =
+            su.user_id
+        </if>
+        <include refid="baseWhere"></include>
+    </select>
+
+    <select id="queryMaxCode" resultType="long">
+        select max(cast(user_id as signed))
+        from sys_user
+    </select>
+    <select id="queryAccount" resultType="map">
+        select
+            su.user_id   as userId,
+            su.balance   as balance,
+            su.integrate as integrate
+        from sys_user su
+        where su.user_id = #{userId}
+    </select>
+
+    <update id="updateBalance">
+        update sys_user
+        set balance = balance + #{coin}
+        where
+            user_id = #{userId}
+    </update>
+
+    <update id="updateIntegrate">
+        update sys_user
+        set integrate = integrate +
+                        #{integrate}
+        where user_id =
+              #{userId}
+    </update>
+
+    <update id="updateBalanceAndIntegrate">
+        update sys_user
+        set balance   = balance +
+                        #{coin},
+            integrate = integrate +
+                        #{integrate}
+        where user_id = #{userId}
+    </update>
+
+    <select id="queryDetail" resultType="com.project.module.api.vo.ApiUserVO">
+        select
+            su.user_id               as userId,
+            su.name                  as name,
+            su.head_url              as headUrl,
+            su.sex                   as sex,
+            su.birth                 as birth,
+            TIMESTAMPDIFF(YEAR, str_to_date(su.birth, '%Y-%m-%d'),
+                          CURDATE()) as age,
+            su.sign                  as sign,
+            su.tags                  as tags,
+            su.background            as background
+        from sys_user su
+        where su.user_id = #{userId}
+          and su.valid = 1
+          and su.app_user = 1
+    </select>
+
+</mapper>
