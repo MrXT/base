@@ -3,10 +3,10 @@
 #### 项目介绍
 Base后台
 #### 软件架构
-软件架构说明
-1.本项目采用springboot 1.5.7,mybatis,beetl搭建
-2.有关springboo教程（https://spring.io/projects/spring-boot#learn）
-3.项目代码架构
+软件架构说明  
+1.本项目采用springboot 1.5.7,mybatis,beetl搭建  
+2.有关springboo教程（https://spring.io/projects/spring-boot#learn）  
+3.项目代码架构  
     （1）common
             config  项目启动springboot会自动扫描的配置文件(效果相当与spring.xml，都是为了spring容器的初始化)
             controller
